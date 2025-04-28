@@ -52,12 +52,27 @@ A full-stack video sharing platform built with React, Node.js, and MongoDB that 
 - MongoDB
 - npm or yarn
 
+### Environment Variables
+
+Create `.env` files in both frontend and backend directories:
+
+Backend `.env`:
+```
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+PORT=5000
+```
+
+Frontend `.env`:
+```
+REACT_APP_API_URL=http://localhost:5000/api
+```
+
 ### Installation
 
 1. Clone the repository:
-
 ```bash
-git clone <https://github.com/NISHANT4510/youtube-clone-fullstack>
+git clone https://github.com/yourusername/youtube_clone.git
 cd youtube_clone
 ```
 
