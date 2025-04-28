@@ -14,12 +14,14 @@ A full-stack video sharing platform built with React, Node.js, and MongoDB that 
 ## Tech Stack
 
 ### Frontend
+
 - React.js
 - Tailwind CSS
 - Context API for state management
 - Axios for API calls
 
 ### Backend
+
 - Node.js
 - Express.js
 - MongoDB
@@ -45,6 +47,7 @@ A full-stack video sharing platform built with React, Node.js, and MongoDB that 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js (v14 or higher)
 - MongoDB
 - npm or yarn
@@ -52,18 +55,21 @@ A full-stack video sharing platform built with React, Node.js, and MongoDB that 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
-git clone <repository-url>
+git clone <https://github.com/NISHANT4510/youtube-clone-fullstack>
 cd youtube_clone
 ```
 
 2. Install Backend Dependencies:
+
 ```bash
 cd backend
 npm install
 ```
 
 3. Install Frontend Dependencies:
+
 ```bash
 cd frontend
 npm install
@@ -72,24 +78,28 @@ npm install
 ### Running the Application
 
 1. Start the Backend Server:
+
 ```bash
 cd backend
 npm start
 ```
 
 2. Start the Frontend Development Server:
+
 ```bash
 cd frontend
 npm start
 ```
 
 The application should now be running on:
+
 - Frontend: http://localhost:3000
 - Backend: http://localhost:5000
 
 ## Features in Detail
 
 ### User Features
+
 - User registration and authentication
 - Create and manage channels
 - Upload and manage videos
@@ -97,6 +107,7 @@ The application should now be running on:
 - Subscribe to channels
 
 ### Video Features
+
 - Video upload with thumbnail generation
 - Video streaming
 - Video search and filtering
@@ -105,6 +116,7 @@ The application should now be running on:
 - Comment system
 
 ### Channel Features
+
 - Channel creation and customization
 - Channel analytics
 - Subscriber management
