@@ -1,0 +1,8 @@
+{
+  "short_name": "YouTube Clone",
+  "name": "YouTube Clone App",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
