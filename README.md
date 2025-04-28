@@ -58,7 +58,7 @@ Create `.env` files in both frontend and backend directories:
 
 Backend `.env`:
 ```
-MONGODB_URI=your_mongodb_connection_string
+MONGODB_URI=mongodb+srv://nishant4510:kTNwfiSmhGfj82iC@cluster0.jhaitjn.mongodb.net/testingdb
 JWT_SECRET=your_jwt_secret
 PORT=5000
 ```
@@ -72,7 +72,7 @@ REACT_APP_API_URL=http://localhost:5000/api
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/youtube_clone.git
+git clone https://github.com/NISHANT4510/youtube-clone-fullstack
 cd youtube_clone
 ```
 
