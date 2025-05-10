@@ -110,11 +110,19 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('Response error:', {
+    // Enhanced error logging
+    const errorResponse = {
       status: error.response?.status,
       data: error.response?.data,
       message: error.message,
-    });
+      isCORSError: error.message === 'Network Error' || error.message.includes('CORS'),
+    };
+
+    console.error('Response error:', errorResponse);
+
+    if (errorResponse.isCORSError) {
+      console.error('CORS Error: Please check if the server is running and CORS is properly configured');
+    }
 
     if (error.response?.status === 401) {
       localStorage.removeItem('token');

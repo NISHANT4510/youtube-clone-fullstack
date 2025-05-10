@@ -19,7 +19,8 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'https://youtube-clone-fullstack.vercel.app',
-  'https://youtube-clone-fullstack-558idwwo6-nishants-projects-a4179263.vercel.app'
+  'https://youtube-clone-fullstack-558idwwo6-nishants-projects-a4179263.vercel.app',
+  'https://youtube-clone-fullstack-1.onrender.com'
 ];
 
 app.use(cors({
@@ -51,12 +52,26 @@ mongoose.connect(process.env.MONGODB_URI, {
 .catch(err => console.error('MongoDB connection error:', err));
 
 // Mount routes
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/videos', require('./routes/videos'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  console.error('Error details:', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method
+  });
+  res.status(500).json({ 
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// Add 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: `Cannot ${req.method} ${req.path}` });
 });
 
 const PORT = process.env.PORT || 3001;
