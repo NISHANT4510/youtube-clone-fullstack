@@ -1,4 +1,13 @@
 require('dotenv').config();
+
+// Validate required environment variables
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'DB_NAME'];
+requiredEnvVars.forEach(envVar => {
+  if (!process.env[envVar]) {
+    throw new Error(`Missing required environment variable: ${envVar}`);
+  }
+});
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -29,8 +38,26 @@ app.use(cors({
   exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
 
-//
+app.use(express.json());
 app.options('*', cors());
+
+// Connect to MongoDB with options
+mongoose.connect(process.env.MONGODB_URI, {
+  dbName: process.env.DB_NAME,
+  retryWrites: true,
+  w: 'majority'
+})
+.then(() => console.log('Connected to MongoDB -', process.env.DB_NAME))
+.catch(err => console.error('MongoDB connection error:', err));
+
+// Mount routes
+app.use('/api/videos', require('./routes/videos'));
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
 
 const PORT = process.env.PORT || 3001;
 
