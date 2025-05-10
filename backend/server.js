@@ -4,16 +4,25 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
 
-const app = express(); // ✅ App is defined here
+const app = express();
 
-// ✅ Now use CORS
+// Update allowed origins to include Vercel deployment URL
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://youtube-clone-fullstack.vercel.app'
+  'https://youtube-clone-fullstack.vercel.app',
+  'https://youtube-clone-fullstack-558idwwo6-nishants-projects-a4179263.vercel.app'
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error('CORS policy violation'), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
