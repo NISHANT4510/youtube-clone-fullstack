@@ -13,13 +13,19 @@ const commentRoutes = require('./routes/comments');
 const channelRoutes = require('./routes/channels');
 
 // Enhanced CORS configuration
+// app.use(cors({
+//   origin: 'http://localhost:3000',
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization'],
+//   exposedHeaders: ['Content-Range', 'X-Content-Range']
+// }));
+const cors = require('cors');
+
 app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range']
+  origin: ['http://localhost:3000', 'https://youtube-clone-fullstack.vercel.app']
 }));
+
 
 // Add pre-flight handling for all routes
 app.options('*', cors());
