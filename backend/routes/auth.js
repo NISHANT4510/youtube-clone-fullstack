@@ -10,30 +10,45 @@ router.post('/signup', validateSignup, async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Check existing user
-    const existingUser = await User.findOne({ 
-      $or: [{ email }, { username }] 
-    });
-    
-    if (existingUser) {
+    // Check existing user with specific error messages
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ message: 'Username already taken' });
+    }
+
+    // Create user with explicit error handling
+    let user;
+    try {
+      user = new User({ username, email, password });
+      await user.save();
+    } catch (error) {
+      console.error('User creation error:', error);
       return res.status(400).json({ 
-        message: existingUser.email === email ? 
-          'Email already in use' : 
-          'Username already taken' 
+        message: 'Invalid user data',
+        details: error.message 
       });
     }
 
-    // Create user
-    const user = new User({ username, email, password });
-    await user.save();
-
-    // Create channel
-    const channel = new Channel({
-      name: username,
-      description: `${username}'s channel`,
-      userId: user._id
-    });
-    await channel.save();
+    // Create channel with explicit error handling
+    let channel;
+    try {
+      channel = new Channel({
+        name: username,
+        description: `${username}'s channel`,
+        userId: user._id
+      });
+      await channel.save();
+    } catch (error) {
+      // Cleanup: remove user if channel creation fails
+      await User.findByIdAndDelete(user._id);
+      console.error('Channel creation error:', error);
+      return res.status(500).json({ message: 'Error creating channel' });
+    }
 
     // Update user with channel reference
     user.channelId = channel._id;
@@ -56,10 +71,7 @@ router.post('/signup', validateSignup, async (req, res) => {
     });
   } catch (error) {
     console.error('Signup error:', error);
-    res.status(500).json({ 
-      message: 'Error creating account',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    res.status(500).json({ message: 'Error creating account' });
   }
 });
 
