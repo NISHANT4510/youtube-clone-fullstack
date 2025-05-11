@@ -46,21 +46,25 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    
+    console.log('Login attempt:', { email, timestamp: new Date().toISOString() });
     
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const user = await User.findOne({ email }).populate('channelId');
+    const user = await User.findOne({ email }).select('+password').populate('channelId');
     if (!user) {
+      console.log('Login failed: User not found:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      console.log('Login failed: Invalid password for:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -70,6 +74,8 @@ router.post('/login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    console.log('Login successful:', { email, userId: user._id });
+
     res.json({
       token,
       user: {
@@ -77,12 +83,12 @@ router.post('/login', async (req, res) => {
         username: user.username,
         email: user.email,
         avatar: user.avatar || 'https://via.placeholder.com/150',
-        channelId: user.channelId?._id || null // Explicitly include channelId
+        channelId: user.channelId?._id || null
       }
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    next(error); // Pass to error handler
   }
 });
 

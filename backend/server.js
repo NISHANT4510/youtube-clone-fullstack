@@ -57,15 +57,20 @@ app.use('/api/videos', require('./routes/videos'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error details:', {
-    message: err.message,
-    stack: err.stack,
+  const error = {
+    message: err.message || 'Internal Server Error',
+    status: err.status || 500,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
     path: req.path,
-    method: req.method
-  });
-  res.status(500).json({ 
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    method: req.method,
+    body: process.env.NODE_ENV === 'development' ? req.body : undefined
+  };
+
+  console.error('Error details:', error);
+
+  res.status(error.status).json({
+    message: error.message,
+    ...(process.env.NODE_ENV === 'development' && { debug: error })
   });
 });
 
