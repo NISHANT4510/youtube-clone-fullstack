@@ -51,6 +51,10 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('Connected to MongoDB -', process.env.DB_NAME))
 .catch(err => console.error('MongoDB connection error:', err));
 
+// Register models
+require('./models/User');
+require('./models/Channel');
+
 // Mount routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/videos', require('./routes/videos'));

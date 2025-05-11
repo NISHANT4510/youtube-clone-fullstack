@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 const channelSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   name: { type: String, required: true },
   description: { type: String },
-  avatar: { type: String, default: 'https://placekitten.com/100/100' },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  avatar: { type: String, default: 'https://via.placeholder.com/150' },
+  subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Channel = require('../models/Channel');
 
 router.post('/signup', async (req, res) => {
   try {
@@ -11,7 +12,7 @@ router.post('/signup', async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ 
       $or: [{ email }, { username }] 
-    }).populate('channelId');
+    });
     
     if (existingUser) {
       return res.status(400).json({ 
@@ -23,6 +24,17 @@ router.post('/signup', async (req, res) => {
 
     // Create user
     const user = await User.create({ username, email, password });
+    
+    // Create default channel for user
+    const channel = await Channel.create({
+      name: username,
+      description: `${username}'s channel`,
+      userId: user._id
+    });
+
+    // Update user with channel reference
+    user.channelId = channel._id;
+    await user.save();
 
     const token = jwt.sign(
       { userId: user._id }, 
@@ -37,12 +49,12 @@ router.post('/signup', async (req, res) => {
         username,
         email,
         avatar: user.avatar,
-        channelId: null // Explicitly set channelId as null for new users
+        channelId: channel._id
       }
     });
   } catch (error) {
     console.error('Signup error:', error);
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
