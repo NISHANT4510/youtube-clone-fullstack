@@ -9,6 +9,7 @@ router.get('/', async (req, res) => {
   try {
     const videos = await Video.find()
       .populate('userId', 'username avatar')
+      .populate('channelId', 'name avatar')
       .sort({ createdAt: -1 })
       .lean();
     
@@ -19,7 +20,9 @@ router.get('/', async (req, res) => {
           ...video,
           id: video._id.toString(),
           username: video.userId?.username,
-          userAvatar: video.userId?.avatar
+          userAvatar: video.userId?.avatar,
+          channelName: video.channelId?.name,
+          channelAvatar: video.channelId?.avatar
         });
       }
     });

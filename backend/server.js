@@ -54,10 +54,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 // Register models
 require('./models/User');
 require('./models/Channel');
+require('./models/Video');
 
 // Mount routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/videos', require('./routes/videos'));
+app.use('/api/channels', require('./routes/channels')); // Add this line
 
 // Error handling middleware
 app.use((err, req, res, next) => {
