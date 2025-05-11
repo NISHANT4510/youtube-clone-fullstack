@@ -4,57 +4,90 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Channel = require('../models/Channel');
+const mongoose = require('mongoose');
 
-router.post('/signup', async (req, res) => {
+// Validation middleware
+const validateSignup = (req, res, next) => {
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).json({ 
+      message: 'All fields are required'
+    });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({
+      message: 'Password must be at least 6 characters long'
+    });
+  }
+  next();
+};
+
+router.post('/signup', validateSignup, async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Check if user already exists
+    // Check for existing user with detailed error
     const existingUser = await User.findOne({ 
       $or: [{ email }, { username }] 
     });
     
     if (existingUser) {
-      return res.status(400).json({ 
-        message: existingUser.email === email ? 
-          'Email already in use' : 
-          'Username already taken' 
+      const field = existingUser.email === email ? 'email' : 'username';
+      return res.status(400).json({
+        message: `This ${field} is already registered`,
+        field
       });
     }
 
-    // Create user
-    const user = await User.create({ username, email, password });
-    
-    // Create default channel for user
-    const channel = await Channel.create({
-      name: username,
-      description: `${username}'s channel`,
-      userId: user._id
-    });
+    // Create user and channel in a transaction
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    // Update user with channel reference
-    user.channelId = channel._id;
-    await user.save();
+    try {
+      const user = await User.create([{ 
+        username, 
+        email, 
+        password 
+      }], { session });
 
-    const token = jwt.sign(
-      { userId: user._id }, 
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+      const channel = await Channel.create([{
+        name: username,
+        description: `${username}'s channel`,
+        userId: user[0]._id
+      }], { session });
 
-    res.status(201).json({ 
-      token, 
-      user: {
-        id: user._id,
-        username,
-        email,
-        avatar: user.avatar,
-        channelId: channel._id
-      }
-    });
+      user[0].channelId = channel[0]._id;
+      await user[0].save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+
+      const token = jwt.sign(
+        { userId: user[0]._id },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      res.status(201).json({
+        token,
+        user: {
+          id: user[0]._id,
+          username,
+          email,
+          channelId: channel[0]._id
+        }
+      });
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   } catch (error) {
     console.error('Signup error:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      message: 'Error creating account',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
